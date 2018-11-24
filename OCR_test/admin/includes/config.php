@@ -1,0 +1,22 @@
+<?php 
+// DB credentials.
+define('DB_HOST','localhost');
+define('DB_USER','root');
+define('DB_PASS','toor');
+define('DB_NAME','carrental');
+// Establish database connection.
+/*try
+{
+$dbh = new PDO("mysql:host=".DB_HOST.";dbname=".DB_NAME,DB_USER, DB_PASS,array(PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES 'utf8'"));
+}
+catch (PDOException $e)
+{
+exit("Error: " . $e->getMessage());
+}*/
+$dbh = new mysqli("localhost","root","toor","carrental");
+
+if($dbh->connect_error){
+    dire("Connection failed: " . $dbh->connect_error);
+}
+
+?>
