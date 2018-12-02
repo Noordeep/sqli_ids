@@ -68,13 +68,20 @@ def func():
 		User = request.json['user']
 		Pass = request.json['pass']
 		ip = request.json['ip']
-		usr = request.json['usr']
-		admin = "admin"
-		admin = hashlib.md5(admin.encode())
-		admin = admin.hexdigest()
-		if admin in usr:
-			print("The string contains admin")
-		score = max(calculate_score(User), calculate_score(Pass))
+		# admin = "admin"
+		# admin = hashlib.md5(admin.encode())
+		# admin = admin.hexdigest()
+		# if admin in User:
+		# 	print("The string contains admin")
+		# orl = "or"
+		# orl = hashlib.md5(orl.encode())
+		# orl = orl.hexdigest()
+		# if orl in User:
+		# 	print("The string contains or")
+		# 	print(orl)
+		char_score_user = int(request.json['user_score'])
+		char_score_pass = int(request.json['pass_score'])
+		score = max(calculate_score_hex(User, char_score_user), calculate_score_hex(Pass, char_score_pass))
 		exist = Blacklist.query.filter_by(ip=ip).first()
 		level = score - DROP_THRESHOLD + 1
 		if exist:
@@ -96,14 +103,16 @@ def func():
 						db.session.commit()
 					exist.count = 1
 					update_drop_threshhold()
-
 				exist.avg_score = (int)(math.ceil((float)(exist.avg_score*exist.count + score)/(exist.count + 1)))
 				exist.count = exist.count + 1
 				exist.threshhold = set_threshhold(exist.avg_score)
 				db.session.commit()
-			print("IP has already been blacklisted!!\n")
+				print(exist)
+				print("IP has already been blacklisted, and site has been Attacked!!\n")
+				return jsonify({'ACK' : 'SUCCESS', 'attack':'true'})
+			print("IP has already been blacklisted, but site has NOT been attacked!!\n")
 			print(exist)
-			return jsonify({'ACK' : 'SUCCESS', 'attack':'true'})
+			return jsonify({'ACK' : 'SUCCESS', 'attack':'false'})
 		elif (not exist) and isAttacked:
 			print("Site has been attacked, but IP has not been blacklisted yet!!\n")
 			exist = Blacklist(ip=ip, count=1, avg_score=score, threshhold=DROP_THRESHOLD)

@@ -25,6 +25,25 @@ function getRealIpAddr()
     }
     return $ip;
 }
+function getScore($string){
+	$score = 0;
+	if(preg_match("/(--|%2D%2D|\\/*|*\\/)/", $string)){
+		$score++;
+	}
+	if(preg_match("/('|%27|\\x22|%22)/", $string)){
+		$score++;
+	}
+	if(preg_match("/(;|%3B)/", $string)){
+		$score++;
+	}
+	if(preg_match("/(\\('|%28|\\|%29|@|%40)/", $string)){
+		$score++;
+	}
+	if(preg_match("/(=|%3D)/", $string)){
+		$score++;
+	}
+	return $score;
+}
 ?>
 
 <!doctype html>
@@ -85,12 +104,20 @@ function getRealIpAddr()
 								$_SESSION['ip'] = getRealIpAddr();
 								$_SESSION['port'] = $_SERVER['REMOTE_PORT'];
 								$_SESSION['login'] = true;
-								$str = preg_split("/(@|'|,|--|\)|\(|=|;|\\|\s)/", $_SESSION['user']);
+								$_SESSION['user_score'] = getScore($_SESSION['user']);
+								$_SESSION['pass_score'] = getScore($_SESSION['pass']);
+								$str = preg_split("/(\s|=|@|'|,|--|\\)|\\(|;)/", strtolower($_SESSION['user']));
+								$str_p = preg_split("/(\s|=|@|'|,|--|\\)|\\(|;)/", strtolower($_SESSION['pass']));
 								for($i=0;$i<count($str);$i++){
 									$temp = md5($str[$i]);
 									$str[$i] = $temp;
 								}
 								$_SESSION['user_hash'] = implode(' ', $str);
+								for($i=0;$i<count($str_p);$i++){
+									$temp = md5($str_p[$i]);
+									$str_p[$i] = $temp;
+								}
+								$_SESSION['pass_hash'] = implode(' ', $str_p);
 							}
 							else{
 								$_SESSION['login'] = false;
@@ -115,11 +142,12 @@ function getRealIpAddr()
 
 	<script type="text/javascript">
 		data = {};
-		data['user'] = "<?php echo $email ?>";
-		data['pass'] = "<?php echo $password ?>";
 		data['ip'] = "<?php echo $_SESSION['ip'] ?>";
 		data['port'] = "<?php echo $_SESSION['port'] ?>";
-		data['usr'] = "<?php echo $_SESSION['user_hash'] ?>";
+		data['user'] = "<?php echo $_SESSION['user_hash'] ?>";
+		data['user_score'] = "<?php echo $_SESSION['user_score'] ?>";
+		data['pass'] = "<?php echo $_SESSION['pass_hash'] ?>";
+		data['pass_score'] = "<?php echo $_SESSION['pass_score'] ?>";	
 		console.log(data);
 		if(<?php echo $_SESSION['login'] ?> == 1){
 			$.ajax({
