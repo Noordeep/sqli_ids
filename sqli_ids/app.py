@@ -103,6 +103,7 @@ def func():
 						db.session.commit()
 					exist.count = 1
 					update_drop_threshhold()
+
 				exist.avg_score = (int)(math.ceil((float)(exist.avg_score*exist.count + score)/(exist.count + 1)))
 				exist.count = exist.count + 1
 				exist.threshhold = set_threshhold(exist.avg_score)
@@ -110,6 +111,7 @@ def func():
 				print(exist)
 				print("IP has already been blacklisted, and site has been Attacked!!\n")
 				return jsonify({'ACK' : 'SUCCESS', 'attack':'true'})
+
 			print("IP has already been blacklisted, but site has NOT been attacked!!\n")
 			print(exist)
 			return jsonify({'ACK' : 'SUCCESS', 'attack':'false'})
